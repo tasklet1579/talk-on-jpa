@@ -6,6 +6,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import jpa.entity.Member;
+import jpa.entity.MemberType;
 
 public class Main {
 
@@ -22,8 +23,9 @@ public class Main {
 		
 		try {
 			Member member = new Member();		
-			member.setId(100L);		
+//			member.setId(100L);
 			member.setName("안녕하세요");
+			member.setMemberType(MemberType.USER);
 			
 			em.persist(member);
 			tx.commit();
