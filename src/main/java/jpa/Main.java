@@ -1,26 +1,78 @@
 package jpa;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.sql.DataSource;
+
+import org.hibernate.cfg.AvailableSettings;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import jpa.entity.Member;
 import jpa.entity.MemberType;
 import jpa.entity.Team;
 
+@EnableJpaRepositories(basePackages = "jpa")
+@SpringBootApplication
+@EnableSpringDataWebSupport
 public class Main {
+	
+	@Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:tcp://localhost/~/test");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
+        return dataSource;
+    }
+
+    @Bean
+    public JpaTransactionManager transactionManager() {
+        return new JpaTransactionManager();
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setDataSource(dataSource());
+        factoryBean.setPackagesToScan("jpa");
+        factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+        Properties jpaProperties = new Properties();
+        jpaProperties.put(AvailableSettings.SHOW_SQL, true);
+        jpaProperties.put(AvailableSettings.FORMAT_SQL, true);
+        jpaProperties.put(AvailableSettings.USE_SQL_COMMENTS, true);
+        jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, "create");
+        jpaProperties.put(AvailableSettings.DIALECT, "org.hibernate.dialect.H2Dialect");
+        jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, "true");
+
+        factoryBean.setJpaProperties(jpaProperties);
+        return factoryBean;
+    }
 
 	public static void main(String[] args) {
-		System.out.printf("Hello JPA");
+		SpringApplication.run(Main.class, args);
+		
+//		System.out.printf("Hello JPA");
 		
 		// 엔티티 매니저 팩토리는 하나만 생성해서 애플리케이션 전체에서 공유
 		// 엔티티 매니저는 쓰레드 간에 공유하면 안 된다(사용하고 버려야 한다)
 		// JPA의 모든 데이터 변경은 트랜잭션 안에서 실행한다
-		EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
-		EntityManager em = emf.createEntityManager();
+//		EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
+//		EntityManager em = emf.createEntityManager();
 		
 //		fieldToColumnMapping(em);
 		
@@ -32,9 +84,9 @@ public class Main {
 		
 //		persistenceContext(em);
 		
-		objectOrientedQuery(em);
+//		objectOrientedQuery(em);
 		
-		emf.close();
+//		emf.close();
 	}
 	
 	public static void fieldToColumnMapping(EntityManager em) {

@@ -35,7 +35,15 @@ public class Member {
 	
 	@ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY 지연 로딩 
 	@JoinColumn(name = "TEAM_ID")
-	private Team team;
+	private Team team; 
+
+	public Member() {
+	}
+	
+	public Member(String name, int age) {
+		this.name = name;
+		this.age = age;
+	}
 
 	public Long getId() {
 		return id;
