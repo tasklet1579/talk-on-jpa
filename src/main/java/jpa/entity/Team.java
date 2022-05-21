@@ -16,6 +16,7 @@ public class Team {
 	private Long id;
 	private String name;
 	
+	// 객체와 테이블 간에 연관관계를 맺는 차이를 이해해야 한다
 	@OneToMany(mappedBy = "team")
 	private List<Member> members = new ArrayList<Member>();
 	
