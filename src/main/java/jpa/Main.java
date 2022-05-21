@@ -30,7 +30,9 @@ public class Main {
 		
 //		bothWayAssociationRelationshipMappingMistake(em);
 		
-		persistenceContext(em);
+//		persistenceContext(em);
+		
+		objectOrientedQuery(em);
 		
 		emf.close();
 	}
@@ -221,6 +223,40 @@ public class Main {
 			// - 직접 호출
 			// - 트랜잭션 커밋
 			// - JPQL 쿼리 실행
+			tx.commit();
+		} catch (Exception e) {
+			tx.rollback();
+		}
+	}
+	
+	public static void objectOrientedQuery(EntityManager em) {
+		EntityTransaction tx = em.getTransaction();
+		tx.begin();
+		
+		try {
+			Team teamA = new Team();
+			teamA.setName("teamA");
+			em.persist(teamA);
+			
+			Member member = new Member();
+			member.setName("안녕하세요");
+			member.setTeam(teamA);
+			em.persist(member);
+			
+			teamA.getMembers().add(member);
+			
+			String sql = "select m from Member m join fetch m.team where m.name like '%hello%'";
+			List<Member> results = em.createQuery(sql, Member.class)
+									.setFirstResult(10)
+									.setMaxResults(20)
+									.getResultList();
+			
+			for (Member result : results) {
+				// fetch join으로 N+1 문제가 발생하지 않음
+				// N+1 : list 조회 1번 + 반복문 N번
+				System.out.println();
+			}
+			
 			tx.commit();
 		} catch (Exception e) {
 			tx.rollback();
