@@ -33,7 +33,7 @@ public class Member {
 //	@Column(name = "TEAM_ID")
 //	private Long teamId;
 	
-	@ManyToOne(fetch = FetchType.EAGER) // FetchType.LAZY 지연 로딩 
+	@ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY 지연 로딩 
 	@JoinColumn(name = "TEAM_ID")
 	private Team team;
 

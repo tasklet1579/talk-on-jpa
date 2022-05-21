@@ -28,7 +28,9 @@ public class Main {
 		
 //		bothWayAssociationRelationshipMapping(em);
 		
-		bothWayAssociationRelationshipMappingMistake(em);
+//		bothWayAssociationRelationshipMappingMistake(em);
+		
+		persistenceContext(em);
 		
 		emf.close();
 	}
@@ -175,6 +177,50 @@ public class Main {
 			em.flush();
 			em.clear();
 			
+			tx.commit();
+		} catch (Exception e) {
+			tx.rollback();
+		}
+	}
+	
+	public static void persistenceContext(EntityManager em) {
+		EntityTransaction tx = em.getTransaction();
+		tx.begin();
+		
+		try {
+			Team teamA = new Team();
+			teamA.setName("teamA");
+			em.persist(teamA);
+			
+			Member member = new Member();
+			member.setName("안녕하세요");
+			member.setTeam(teamA);
+			em.persist(member);
+			
+			teamA.getMembers().add(member);
+			
+			// flush : 변경 감지, 수정된 엔티티 쓰기 지연 SQL 저장소 등록, SQL 데이터베이스 전송
+			// clear : 캐시 지움
+			em.flush();
+			em.clear();
+						
+			Member findMember = em.find(Member.class, member.getId());
+			
+			// 준영속 상태
+			// 지연 로딩을 사용하기 위해서는 영속성 컨텍스트가 유지되어야 한다
+			// - 스프링에서 트랜잭션이 끝난 후에 지연 로딩을 사용하는 경우 에러가 발생한다 
+//			em.detach(findMember);
+//			em.clear();
+			
+			// 변경 감지
+			findMember.setName("티아카데미");
+			
+			em.remove(findMember);
+			
+			// flush 하는 방법
+			// - 직접 호출
+			// - 트랜잭션 커밋
+			// - JPQL 쿼리 실행
 			tx.commit();
 		} catch (Exception e) {
 			tx.rollback();
